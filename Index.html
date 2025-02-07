@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Public Message Book</title>
+<link rel="icon" type="image/png" href="Images/favicon.png"> <!-- Add this line to include the icon -->
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #4674bd;
+    }
+    @font-face {
+        font-family: 'YourCustomFont';
+        src: url('fonts/Magic Retro.ttf') format('truetype'); /* Adjust the path to your font file */
+    }
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        border: 100px solid #055992;
+        border-radius: 5px;
+        padding: 20px;
+        position: relative; /* Added */
+        overflow: hidden; /* Added */
+    }
+    .background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://background-tiles.com/overview/blue/patterns/large/1064.png'); /* Replace 'your_image_url.jpg' with your image URL */
+        background-repeat: repeat; /* Ensure the background image repeats */
+        z-index: -1; /* Send the background behind other content */
+    }
+    .message {
+        background-color: #4674bd;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .edit-area {
+        width: 97%;
+        border: 3px solid #4674bd;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .logo {
+        text-align: center;
+        font-family: 'YourCustomFont', Arial, sans-serif; /* Apply custom font */
+    }
+</style>
+<script src="https://unpkg.com/cursor-effects@latest/dist/browser.js"></script>
+<script>
+    window.addEventListener("load", (event) => {
+        new cursoreffects.ghostCursor();
+    });
+</script>
+</head>
+<body>
+<div class="container">
+    <div class="background"></div> <!-- Added background container -->
+    <div class="logo">
+        <img src="Images/an-book.gif" alt="Your GIF" style="vertical-align: middle;"> <!-- Insert your GIF here -->
+        <img src="https://images.cooltext.com/5693536.png" alt="Logo">
+        <img src="Images/newblast.gif" alt="Your GIF" style="vertical-align: middle;"> <!-- Insert your GIF here -->
+        <h3>Version Alpha 1.0</h3>
+    </div>
+    <div id="messages"></div>
+    <div id="edit-area" class="edit-area" contenteditable="true"></div>
+    <!-- Save Message image replaced with an image -->
+    <img src="Images/save_message.png" alt="Save Message" onclick="saveMessage()" style="cursor: pointer;">
+    <!-- Download Log button -->
+    <img src="Images/download_icon.png" alt="Download Log" onclick="downloadLog()" style="cursor: pointer;">
+</div>
+
+<script>
+    // Function to save the message
+    function saveMessage() {
+        var message = document.getElementById("edit-area").innerHTML;
+        var messages = JSON.parse(localStorage.getItem("messages")) || [];
+        messages.push(message);
+        localStorage.setItem("messages", JSON.stringify(messages));
+        displayMessages();
+        document.getElementById("edit-area").innerHTML = "";
+    }
+
+    // Function to download the log as a .txt file
+    function downloadLog() {
+        var messages = JSON.parse(localStorage.getItem("messages")) || [];
+        var textToSave = messages.join("\n");
+        var hiddenElement = document.createElement("a");
+        hiddenElement.href = "data:text/plain;charset=utf-8," + encodeURIComponent(textToSave);
+        hiddenElement.target = "_blank";
+        hiddenElement.download = "message_log.txt";
+        hiddenElement.click();
+    }
+
+    // Function to display messages
+    function displayMessages() {
+        var messages = JSON.parse(localStorage.getItem("messages")) || [];
+        var messagesDiv = document.getElementById("messages");
+        messagesDiv.innerHTML = "";
+        messages.forEach(function (message, index) {
+            var messageDiv = document.createElement("div");
+            messageDiv.classList.add("message");
+            messageDiv.innerHTML = "<p>" + message + "</p>";
+            
+            // Create edit button
+            var editImg = document.createElement("img");
+            editImg.src = "Images/edit_icon.png";
+            editImg.alt = "Edit";
+            editImg.style.cursor = "pointer";
+            editImg.onclick = function () {
+                editMessage(index);
+            };
+            messageDiv.appendChild(editImg);
+            
+            // Create delete button
+            var deleteImg = document.createElement("img");
+            deleteImg.src = "Images/delete_icon.png";
+            deleteImg.alt = "Delete";
+            deleteImg.style.cursor = "pointer";
+            deleteImg.onclick = function () {
+                deleteMessage(index);
+            };
+            messageDiv.appendChild(deleteImg);
+
+            messagesDiv.appendChild(messageDiv);
+        });
+    }
+
+    // Function to edit a message
+    function editMessage(index) {
+        var messages = JSON.parse(localStorage.getItem("messages")) || [];
+        var editedMessage = prompt("Edit the message:", messages[index]);
+        if (editedMessage !== null) {
+            messages[index] = editedMessage;
+            localStorage.setItem("messages", JSON.stringify(messages));
+            displayMessages();
+        }
+    }
+    
+    // Function to delete a message
+    function deleteMessage(index) {
+        var messages = JSON.parse(localStorage.getItem("messages")) || [];
+        messages.splice(index, 1);
+        localStorage.setItem("messages", JSON.stringify(messages));
+        displayMessages();
+    }
+
+    // Display existing messages on page load
+    displayMessages();
+</script>
+</body>
+</html>
